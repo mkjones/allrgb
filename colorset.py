@@ -1,3 +1,5 @@
+import math
+from color import Color
 
 class Colorset(object):
 
@@ -13,10 +15,19 @@ class Colorset(object):
 
     def get_nearest(self, desired):
         thresh = 20
+        nearest = [1000000000000, None]
         for color, _ in self.colorset.iteritems():
-            if color.distance(desired) <= thresh:
+            distance = color.distance(desired)
+            if distance <= thresh:
                 del self.colorset[color]
                 return color
+            if distance < nearest[0]:
+                nearest[0] = distance
+                nearest[1] = color
+        color = nearest[1]
+        del self.colorset[color]
+        return color
+
     def iterate(self):
         for color, _ in self.colorset.iteritems():
             yield color
