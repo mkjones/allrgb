@@ -1,20 +1,26 @@
 import math
 from color import Color
+import random
 
 class Colorset(object):
 
     def __init__(self, bits):
         self.bits = bits
         max_color = int(math.pow(2, bits))
-        self.colorset = {}
+        colors = []
         for r in xrange(0, max_color):
             for g in xrange(0, max_color):
                 for b in xrange(0, max_color):
                     color = Color(r, g, b, bits)
-                    self.colorset[color] = True
+                    colors.append(color)
+
+        random.shuffle(colors)
+        self.colorset = {}
+        for c in colors:
+            self.colorset[c] = True
 
     def get_nearest(self, desired):
-        thresh = 20
+        thresh = 10
         nearest = [1000000000000, None]
         for color, _ in self.colorset.iteritems():
             distance = color.distance(desired)
