@@ -13,6 +13,9 @@ class Color(object):
     def __hash__(self):
         return self.hash
 
+    def brightness(self):
+        return sum(self.rgb)
+
     def distance(self, other):
         if self.bits != other.bits:
             raise Exception('cannot get distance with different bit counts')

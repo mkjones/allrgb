@@ -3,6 +3,7 @@ from PIL import Image
 import collections
 import random
 import math
+from color import Color
 
 class Canvas(object):
 
@@ -16,11 +17,9 @@ class Canvas(object):
                 self.open_slots[(x, y)] = True
 
     def get(self, x, y):
-        row = self.colors.get(x)
-        if row is None:
+        if (x, y) in self.open_slots:
             return None
-        ret = row.get(y)
-        return ret
+        return self.colors[x][y]
 
     def set(self, x, y, color):
         del self.open_slots[(x, y)]
@@ -29,6 +28,75 @@ class Canvas(object):
             row = {}
             self.colors[x] = row
         row[y] = color
+
+    def get_avg_color(self, x, y):
+        r = 0
+        g = 0
+        b = 0
+        total = 0
+        bits = None
+        for i in xrange(-1, 1):
+            xnew = x + i
+            if xnew < 0 or xnew >= self.width:
+                continue
+            for j in xrange(-1, 1):
+                ynew = y + j
+                if ynew < 0 or ynew >= self.height:
+                    continue
+                col = self.get(x+i, y + j)
+                if col is None:
+                    continue
+                if bits is None:
+                    bits = col.bits
+                total += 1
+                rgb = col.rgb
+                r += rgb[0]
+                g += rgb[1]
+                b += rgb[2]
+        return Color(int(r/total), int(g/total), int(b/total), bits)
+
+
+    def find_blank_nearby_opt(self, x, y):
+        coords = (
+            (x+1, y),
+            (x-1, y),
+            (x, y+1),
+            (x, y-1))
+        res = self._check_coords(coords)
+        if res is not None:
+            return res
+
+        coords = (
+            (x+1, y+1),
+            (x+1, y-1),
+            (x-1, y+1),
+            (x+1, y-1))
+
+        res = self._check_coords(coords)
+        if res is not None:
+            return res
+
+        print 'falling back'
+        return self._find_nearest(x, y)
+
+    def _check_coords(self, coords):
+        matches = []
+        for check in coords:
+            if check in self.open_slots:
+                matches.append(check)
+        if len(matches) > 0:
+            return random.choice(matches)
+        return None
+
+    def _find_nearest(self, x, y):
+        min_spot = (0, 0)
+        min_distance = 1000000000
+        for (i, j), _ in self.open_slots.iteritems():
+            distance = int(math.pow((i-x), 2) + math.pow((j-y), 2))
+            if distance < min_distance:
+                min_distance = distance
+                min_spot = (i, j)
+        return min_spot
 
     def find_blank_nearby(self, x, y):
         x_diffs = random.choice(diffs)
@@ -47,15 +115,7 @@ class Canvas(object):
                 if self.get(newx, newy) is None:
                     return (newx, newy)
 
-        min_spot = (0, 0)
-        min_distance = 1000000000
-        for (i, j), _ in self.open_slots.iteritems():
-            distance = int(math.pow((i-x), 2) + math.pow((j-y), 2))
-            if distance < min_distance:
-                min_distance = distance
-                min_spot = (i, j)
-        return min_spot
-
+        return self._find_nearest(x, y)
 
     def save(self, filename):
         image = numpy.zeros((self.width, self.height, 3), 'uint8')

@@ -20,17 +20,16 @@ class Colorset(object):
             self.colorset[c] = True
 
     def get_nearest(self, desired):
-        thresh = 10
-        nearest = [1000000000000, None]
+        nearest = [1000000000000, []]
         for color, _ in self.colorset.iteritems():
             distance = color.distance(desired)
-            if distance <= thresh:
-                del self.colorset[color]
-                return color
-            if distance < nearest[0]:
+            if distance == nearest[0]:
+                nearest[1].append(color)
+            elif distance < nearest[0]:
                 nearest[0] = distance
-                nearest[1] = color
-        color = nearest[1]
+                nearest[1] = [color]
+
+        color = random.choice(nearest[1])
         del self.colorset[color]
         return color
 
