@@ -1,11 +1,22 @@
-
+from scipy.spatial import KDTree
 class Finder(object):
 
     def __init__(self, list_of_tuples, distance):
+        self.tree = KDTree(list_of_tuples)
+        self.tuple_list = list_of_tuples
         self.tuples = {x: True for x in list_of_tuples}
         self.distance = distance
+        self.removed = set([])
 
     def find_nearest(self, query):
+        (_, idx) = self.tree.query(query)
+        kdnearest = self.tuple_list[idx]
+
+        if kdnearest not in self.removed:
+            del self.tuples[kdnearest]
+            self.removed.add(kdnearest)
+            return
+
         min = 100000000
         argmin = None
         for k, _ in self.tuples.iteritems():
@@ -14,6 +25,7 @@ class Finder(object):
                 min = distance
                 argmin = k
         del self.tuples[argmin]
+        self.removed.add(kdnearest)
         return argmin
 
 if __name__ == '__main__':
