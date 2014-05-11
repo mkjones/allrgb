@@ -12,22 +12,26 @@ print 'making colors'
 colorset = Colorset(bits)
 size = colorset.size()
 
+print 'initializing'
 width = int(math.sqrt(colorset.size()))
 height = width + 1
 
 i = 0
 canvas = Canvas(width, height)
 
-print 'making image'
 colors = [x for x in colorset.iterate()]
 random.shuffle(colors)
+
+print 'making image'
 starting_color = colors[0]
+
 last_x = random.randrange(width)
 last_y = random.randrange(height)
 
 canvas.set(last_x, last_y, starting_color)
 
 i = 0
+last_save_time = time.time()
 while colorset.size() > 0:
     last_col = canvas.get(last_x, last_y)
     new_col = colorset.get_nearest(last_col)
@@ -39,7 +43,8 @@ while colorset.size() > 0:
 
     if i % 1000 == 0:
         name = '/tmp/colors.%d.%d.png' % (bits, i)
-        print name
+        print (name, time.time() - last_save_time)
+        last_save_time = time.time()
         canvas.save(name)
 
 
