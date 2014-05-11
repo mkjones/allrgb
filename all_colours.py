@@ -7,7 +7,7 @@ from color import Color
 from canvas import Canvas
 from colorset import Colorset
 
-bits = 5
+bits = 7
 seed = 42
 random.seed(seed)
 print 'making colors'
@@ -60,14 +60,4 @@ while colorset.size() > 0:
         print (name, time.time() - last_save_time, int(avg_rate), int(time_color), int(time_point))
         last_save_time = time.time()
         canvas.save(name)
-
-
-for col in colorset.iterate():
-
-    x = i / height
-    y = i % height
-    canvas.set(x, y, col.get_24bit_tuple())
-    i = i + 1
-
-print name
 
