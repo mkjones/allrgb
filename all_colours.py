@@ -8,6 +8,8 @@ from canvas import Canvas
 from colorset import Colorset
 
 bits = 5
+seed = 42
+random.seed(seed)
 print 'making colors'
 colorset = Colorset(bits)
 size = colorset.size()

@@ -1,11 +1,12 @@
+from scipy.spatial import KDTree
 import time
 
 class Finder(object):
 
     def __init__(self, list_of_tuples):
         self.tuples = {x: True for x in list_of_tuples}
-        self.tuple_list = list_of_tuples
         self.removed = set([])
+        self.rebuild()
 
     def size(self):
         return len(self.tuples)
@@ -17,24 +18,45 @@ class Finder(object):
         return sum(map(lambda x: x * x, diffs))
 
     def find_nearest(self, query):
-        threshold = 20
+        if len(self.removed) % 1234 == 0:
+            self.rebuild_if_necessary()
+
+        (_, idxes) = self.tree.query(query, 80)
+        for idx in idxes:
+            kdnearest = self.tuple_list[idx]
+            if kdnearest not in self.removed:
+                self.used_kd += 1
+                return self.remove(kdnearest)
+
         min = 100000000
         argmin = None
-        for tuple in self.tuple_list:
-            distance = self.distance(tuple, query)
-            if distance < threshold and tuple not in self.removed:
-                return self.remove(tuple)
+        for k, _ in self.tuples.iteritems():
+            distance = self.distance(k, query)
             if distance < min:
                 min = distance
-                argmin = tuple
-
+                argmin = k
         self.used_bruteforce += 1
         return self.remove(argmin)
 
-    def remove(self, element):
-        del self.tuples[element]
-        self.removed.add(element)
-        return element
+    def remove(self, elem):
+        del self.tuples[elem]
+        self.removed.add(elem)
+        return elem
+
+    def rebuild_if_necessary(self):
+        print ('kd, bruteforce', self.used_kd, self.used_bruteforce)
+        if self.used_bruteforce > 2:
+            start = time.time()
+            self.rebuild()
+            diff = time.time() - start
+            print ('rebuilt in ', diff)
+
+    def rebuild(self):
+        self.tuple_list = self.tuples.keys()
+        self.tree = KDTree(self.tuple_list)
+        self.used_kd = 0
+        self.used_bruteforce = 0
+
 
 if __name__ == '__main__':
     tuples = [
