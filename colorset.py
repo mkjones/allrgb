@@ -1,41 +1,36 @@
 import math
 from color import Color
 import random
+from finder import Finder
 
 class Colorset(object):
 
     def __init__(self, bits):
         self.bits = bits
         max_color = int(math.pow(2, bits))
-        colors = []
+        self.colors = []
         for r in xrange(0, max_color):
             for g in xrange(0, max_color):
                 for b in xrange(0, max_color):
                     color = Color(r, g, b, bits)
-                    colors.append(color)
+                    self.colors.append(color)
 
-        random.shuffle(colors)
-        self.colorset = {}
-        for c in colors:
-            self.colorset[c] = True
+        random.shuffle(self.colors)
+        self.rgb2color = {x.rgb: x for x in self.colors}
+        rgbs = map(lambda x: x.rgb, self.colors)
+
+        self.finder = Finder(rgbs)
 
     def get_nearest(self, desired):
-        nearest = [1000000000000, []]
-        for color, _ in self.colorset.iteritems():
-            distance = color.distance(desired)
-            if distance == nearest[0]:
-                nearest[1].append(color)
-            elif distance < nearest[0]:
-                nearest[0] = distance
-                nearest[1] = [color]
+        if desired.bits != self.bits:
+            raise Exception('wrong number of bits')
+        res = self.finder.find_nearest(desired.rgb)
 
-        color = random.choice(nearest[1])
-        del self.colorset[color]
-        return color
+        return self.rgb2color[res]
 
     def iterate(self):
-        for color, _ in self.colorset.iteritems():
+        for color in self.colors:
             yield color
 
     def size(self):
-        return len(self.colorset)
+        return self.finder.size()
