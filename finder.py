@@ -17,6 +17,12 @@ class Finder(object):
             diffs.append(x[i] - y[i])
         return sum(map(lambda x: x * x, diffs))
 
+    def find_threshold(self, query):
+        thresh = 20
+        for elem, _ in self.tuples.iteritems():
+            if self.distance(query, elem) <= thresh:
+                return self.remove(elem)
+
     def find_nearest(self, query):
         if len(self.removed) % 1234 == 0:
             self.rebuild_if_necessary()

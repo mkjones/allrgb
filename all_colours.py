@@ -7,7 +7,7 @@ from color import Color
 from canvas import Canvas
 from colorset import Colorset
 
-bits = 7
+bits = 5
 seed = 42
 random.seed(seed)
 print 'making colors'
@@ -45,7 +45,7 @@ while colorset.size() > 0:
     time_color += diff
 
     get_nearby_start = time.time()
-    (x, y) = canvas.find_blank_nearby(last_x, last_y)
+    (x, y) = canvas.find_blank_nearby_opt(last_x, last_y)
     diff = time.time() - get_nearby_start
     time_point += diff
 

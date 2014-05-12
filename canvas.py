@@ -12,6 +12,7 @@ class Canvas(object):
         self.height = height
         self.colors = {}
         self.open_slots = {}
+        self.adjacent_and_open = set([])
         for x in xrange(0, width):
             for y in xrange(0, height):
                 self.open_slots[(x, y)] = True
@@ -22,12 +23,32 @@ class Canvas(object):
         return self.colors[x][y]
 
     def set(self, x, y, color):
+        adjacent = self.get_adjacent(x, y)
+        for point in adjacent:
+            if point in self.open_slots:
+                self.adjacent_and_open.add(point)
+
         del self.open_slots[(x, y)]
+        self.adjacent_and_open.remove((x, y))
+
         row = self.colors.get(x)
         if row is None:
             row = {}
             self.colors[x] = row
         row[y] = color
+
+    def get_adjacent(self, x, y):
+        ret = set([])
+        for i in xrange(-1, 2):
+            xnew = x + i
+            if xnew < 0 or xnew >= self.width:
+                continue
+            for j in xrange(-1, 2):
+                ynew = y + j
+                if ynew < 0 or ynew >= self.height:
+                    continue
+                ret.add((xnew, ynew))
+        return ret
 
     def get_avg_color(self, x, y):
         r = 0
@@ -35,28 +56,37 @@ class Canvas(object):
         b = 0
         total = 0
         bits = None
-        for i in xrange(-1, 1):
-            xnew = x + i
-            if xnew < 0 or xnew >= self.width:
+        adjacent = self.get_adjacent(x, y)
+        for (xnew, ynew) in adjacent:
+            col = self.get(xnew, ynew)
+            if col is None:
                 continue
-            for j in xrange(-1, 1):
-                ynew = y + j
-                if ynew < 0 or ynew >= self.height:
-                    continue
-                col = self.get(x+i, y + j)
-                if col is None:
-                    continue
-                if bits is None:
-                    bits = col.bits
-                total += 1
-                rgb = col.rgb
-                r += rgb[0]
-                g += rgb[1]
-                b += rgb[2]
+            if bits is None:
+                bits = col.bits
+            total += 1
+            rgb = col.rgb
+            r += rgb[0]
+            g += rgb[1]
+            b += rgb[2]
         return Color(int(r/total), int(g/total), int(b/total), bits)
 
+    def distance(self, a, b):
+        xd = a[0] - b[0]
+        yd = a[1] - b[1]
+        return (xd * xd) + (yd * yd)
+        return sum(map(lambda x: x * x, (a[0]-b[0], a[1]-b[1])))
 
     def find_blank_nearby_opt(self, x, y):
+        min_dist = 10000000000
+        argmin = None
+        for point in self.adjacent_and_open:
+            dist = self.distance((x, y), point)
+            if dist < min_dist:
+                min_dist = dist
+                argmin = point
+
+        return argmin
+
         coords = (
             (x+1, y),
             (x-1, y),
