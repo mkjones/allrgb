@@ -13,6 +13,8 @@ class Canvas(object):
         self.colors = {}
         self.open_slots = {}
         self.adjacent_and_open = set([])
+        self.next = None
+        self.totally_blank = True
         for x in xrange(0, width):
             for y in xrange(0, height):
                 self.open_slots[(x, y)] = True
@@ -23,13 +25,22 @@ class Canvas(object):
         return self.colors[x][y]
 
     def set(self, x, y, color):
+        if (x, y) == self.next:
+            self.next = None
+
         adjacent = self.get_adjacent(x, y)
         for point in adjacent:
+            if point == (x, y):
+                continue
             if point in self.open_slots:
+                self.next = point
                 self.adjacent_and_open.add(point)
 
         del self.open_slots[(x, y)]
-        self.adjacent_and_open.remove((x, y))
+        # the first time we set a pixel, there is nothing in this list
+        if not self.totally_blank:
+            self.adjacent_and_open.remove((x, y))
+        self.totally_blank = False
 
         row = self.colors.get(x)
         if row is None:
@@ -76,38 +87,37 @@ class Canvas(object):
         return (xd * xd) + (yd * yd)
         return sum(map(lambda x: x * x, (a[0]-b[0], a[1]-b[1])))
 
+    def find_next_available(self):
+        if self.next is not None:
+            return self.next
+        for x in self.adjacent_and_open:
+            return x
+
     def find_blank_nearby_opt(self, x, y):
-        min_dist = 10000000000
+        coords = self.get_adjacent(x, y)
+
+        res = self._check_coords(coords)
+        if res is not None:
+            return res
+
+        closest_adjacent = self._find_closest((x, y), self.adjacent_and_open)
+        if closest_adjacent is not None:
+            return closest_adjacent
+
+        print ('nothing left in adj and open?', self.adjacent_and_open)
+        closest = self._find_closest((x, y), self.open_slots)
+        if closest is not None:
+            return closest
+
+    def _find_closest(self, desired_point, list_of_points):
+        min_dist = 100000000000000
         argmin = None
-        for point in self.adjacent_and_open:
-            dist = self.distance((x, y), point)
+        for point in list_of_points:
+            dist = self.distance(desired_point, point)
             if dist < min_dist:
                 min_dist = dist
                 argmin = point
-
         return argmin
-
-        coords = (
-            (x+1, y),
-            (x-1, y),
-            (x, y+1),
-            (x, y-1))
-        res = self._check_coords(coords)
-        if res is not None:
-            return res
-
-        coords = (
-            (x+1, y+1),
-            (x+1, y-1),
-            (x-1, y+1),
-            (x+1, y-1))
-
-        res = self._check_coords(coords)
-        if res is not None:
-            return res
-
-        print 'falling back'
-        return self._find_nearest(x, y)
 
     def _check_coords(self, coords):
         matches = []
