@@ -13,16 +13,14 @@ random.seed(seed)
 print 'making colors'
 colorset = Colorset(bits)
 
+print 'initializing'
+height = width = int(math.sqrt(colorset.size()))
+last_x = random.randrange(width)
+last_y = random.randrange(height)
 # pick a random starting color
 colors = [x for x in colorset.iterate()]
 random.shuffle(colors)
 starting_color = colorset.get_nearest(colors[0])
-
-print 'initializing'
-height = width = int(math.sqrt(colorset.size()))
-
-last_x = random.randrange(width)
-last_y = random.randrange(height)
 
 canvas = Canvas(width, height)
 canvas.set(last_x, last_y, starting_color)
@@ -51,7 +49,6 @@ while colorset.size() > 0:
     new_col = colorset.get_nearest(avg_col)
     diff = time.time() - get_nearest_start
     time_color += diff
-
 
     canvas.set(x, y, new_col)
     last_x = x
