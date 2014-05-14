@@ -6,24 +6,28 @@ import time
 from color import Color
 from canvas import Canvas
 from colorset import Colorset
+import sys
 
 bits = 4
 seed = 42
+starting_pixels = 5
 random.seed(seed)
 print 'making colors'
 colorset = Colorset(bits)
 
 print 'initializing'
 height = width = int(math.sqrt(colorset.size()))
-last_x = random.randrange(width)
-last_y = random.randrange(height)
-# pick a random starting color
+print ('dims', height * width, colorset.size())
+canvas = Canvas(width, height)
+
 colors = [x for x in colorset.iterate()]
 random.shuffle(colors)
-starting_color = colorset.get_nearest(colors[0])
 
-canvas = Canvas(width, height)
-canvas.set(last_x, last_y, starting_color)
+for i in xrange(starting_pixels):
+    starting_color = colorset.get_nearest(colors[i])
+    last_x = random.randrange(width)
+    last_y = random.randrange(height)
+    canvas.set(last_x, last_y, starting_color)
 
 i = 0
 start_time = time.time()
@@ -37,6 +41,16 @@ def write_image(i, last_save_time):
     print (name, time.time() - last_save_time, int(avg_rate), int(time_color), int(time_point))
     last_save_time = time.time()
     canvas.save(name)
+
+for color in colorset.iterate():
+    (x, y) = canvas.find_pixel_with_average_near(color)
+    canvas.set(x, y, color)
+    if i % 1000 == 0:
+        write_image(i, last_save_time)
+    i += 1
+
+write_image(i, last_save_time)
+sys.exit()
 
 while colorset.size() > 0:
     get_nearby_start = time.time()

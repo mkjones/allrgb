@@ -29,8 +29,8 @@ class Colorset(object):
         return self.rgb2color[res]
 
     def iterate(self):
-        for color in self.colors:
-            yield color
+        for (r, g, b) in self.finder.iterate():
+            yield Color(r, g, b, self.bits)
 
     def size(self):
         return self.finder.size()

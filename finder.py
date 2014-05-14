@@ -63,6 +63,10 @@ class Finder(object):
         self.used_kd = 0
         self.used_bruteforce = 0
 
+    def iterate(self):
+        for k, _ in self.tuples.iteritems():
+            yield k
+
 
 if __name__ == '__main__':
     tuples = [

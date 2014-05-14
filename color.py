@@ -4,7 +4,7 @@ class Color(object):
 
     def __init__(self, r, g, b, bits):
         self.rgb = (r, g, b)
-        self.hash = r << 2 * bits | g << bits | b
+        self.hash = self.rgb.__hash__()
         self.bits = bits
 
     def __eq__(self, other):

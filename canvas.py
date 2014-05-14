@@ -38,7 +38,7 @@ class Canvas(object):
 
         del self.open_slots[(x, y)]
         # the first time we set a pixel, there is nothing in this list
-        if not self.totally_blank:
+        if (x, y) in self.adjacent_and_open:
             self.adjacent_and_open.remove((x, y))
         self.totally_blank = False
 
@@ -86,6 +86,21 @@ class Canvas(object):
         yd = a[1] - b[1]
         return (xd * xd) + (yd * yd)
         return sum(map(lambda x: x * x, (a[0]-b[0], a[1]-b[1])))
+
+    def find_pixel_with_average_near(self, target_color):
+        min_distance = 1000000000
+        pixel = None
+        pixels_to_check = self.adjacent_and_open
+        if len(pixels_to_check) == 0:
+            print ('swapping to open slots', self.open_slots)
+            pixels_to_check = self.open_slots
+        for (x, y) in pixels_to_check:
+            avg = self.get_avg_color(x, y)
+            distance = avg.distance(target_color)
+            if distance < min_distance:
+                min_distance = distance
+                pixel = (x, y)
+        return pixel
 
     def find_next_available(self):
         if self.next is not None:
