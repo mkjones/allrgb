@@ -13,17 +13,23 @@ class Canvas(object):
         self.colors = {}
         self.open_slots = {}
         self.adjacent_and_open = set([])
-        self.totally_blank = True
         for x in xrange(0, width):
             for y in xrange(0, height):
                 self.open_slots[(x, y)] = True
 
+    # Gets the current color at the position given.  Returns None if no
+    # color is present.
     def get(self, x, y):
         if (x, y) in self.open_slots:
             return None
         return self.colors[x][y]
 
+    # Sets the given color at the given position. Barfs if you try to set a color
+    # at a position that already exists.
+    # Does a bunch of bookkeeping around what pixels are open and eligible as well
     def set(self, x, y, color):
+
+        # Gotta do some bookkeeping about the adjacent spots
         adjacent = self.get_adjacent(x, y)
         for point in adjacent:
             if point == (x, y):
@@ -31,11 +37,15 @@ class Canvas(object):
             if point in self.open_slots:
                 self.adjacent_and_open.add(point)
 
+        # A color has been set! This pixel is no longer open.
         del self.open_slots[(x, y)]
-        # the first time we set a pixel, there is nothing in this list
+
+        # If it's no longer open, it's also no longer adjacent-and-open.
+        # Remove it if necessary.
+        # (When we start out and set random pixels, they are not in this list,
+        # so we must check for membership first)
         if (x, y) in self.adjacent_and_open:
             self.adjacent_and_open.remove((x, y))
-        self.totally_blank = False
 
         row = self.colors.get(x)
         if row is None:
@@ -82,6 +92,7 @@ class Canvas(object):
         return (xd * xd) + (yd * yd)
         return sum(map(lambda x: x * x, (a[0]-b[0], a[1]-b[1])))
 
+    # finds the open pixel with the average color closest to the target
     def find_pixel_with_average_near(self, target_color):
         min_distance = 1000000000
         pixel = None
@@ -165,6 +176,7 @@ class Canvas(object):
 
         return self._find_nearest(x, y)
 
+    # Saves the current canvas to disk as a file with the given filename
     def save(self, filename):
         image = numpy.zeros((self.width, self.height, 3), 'uint8')
         for x, row in self.colors.iteritems():
@@ -172,14 +184,6 @@ class Canvas(object):
                 image[x, y, :] = color.get_24bit_tuple()
 
         Image.fromarray(image).save(filename)
-
-diffs = (
-    (-1, 0, 1),
-    (-1, 1, 0),
-    (0, -1, 1),
-    (0, 1, -1),
-    (1, 0, -1),
-    (1, -1, 0))
 
 if __name__ == '__main__':
     c = Canvas(4, 4)

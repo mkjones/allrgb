@@ -61,7 +61,7 @@ def write_image(i, last_save_time):
     canvas.save(name)
 
 # For each color generated, find the pixel where it fits "best"
-# (i.e. the pixel where  the average of the filed-in pixels surrounding it
+# (i.e. the pixel where the average of the filled-in pixels surrounding it
 # is closest to this color)
 for color in colorset.iterate():
     (x, y) = canvas.find_pixel_with_average_near(color)
