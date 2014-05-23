@@ -13,6 +13,7 @@ class Canvas(object):
         self.colors = {}
         self.open_slots = {}
         self.adjacent_and_open = set([])
+        self.average_colors = {}
         for x in xrange(0, width):
             for y in xrange(0, height):
                 self.open_slots[(x, y)] = True
@@ -29,13 +30,12 @@ class Canvas(object):
     # Does a bunch of bookkeeping around what pixels are open and eligible as well
     def set(self, x, y, color):
 
-        # Gotta do some bookkeeping about the adjacent spots
-        adjacent = self.get_adjacent(x, y)
-        for point in adjacent:
-            if point == (x, y):
-                continue
-            if point in self.open_slots:
-                self.adjacent_and_open.add(point)
+        # set the color!
+        row = self.colors.get(x)
+        if row is None:
+            row = {}
+            self.colors[x] = row
+        row[y] = color
 
         # A color has been set! This pixel is no longer open.
         del self.open_slots[(x, y)]
@@ -47,11 +47,23 @@ class Canvas(object):
         if (x, y) in self.adjacent_and_open:
             self.adjacent_and_open.remove((x, y))
 
-        row = self.colors.get(x)
+        # Gotta do some bookkeeping about the adjacent spots
+        adjacent = self.get_adjacent(x, y)
+        for point in adjacent:
+            if point == (x, y):
+                continue
+            if point in self.open_slots:
+                self.adjacent_and_open.add(point)
+                self.set_average(point)
+
+    def set_average(self, point):
+        (x, y) = point
+
+        row = self.average_colors.get(x)
         if row is None:
             row = {}
-            self.colors[x] = row
-        row[y] = color
+            self.average_colors[x] = row
+        row[y] = self.get_avg_color(x, y)
 
     def get_adjacent(self, x, y):
         ret = set([])
@@ -96,16 +108,15 @@ class Canvas(object):
     def find_pixel_with_average_near(self, target_color):
         min_distance = 1000000000
         pixel = None
-        pixels_to_check = self.adjacent_and_open
-        if len(pixels_to_check) == 0:
-            print ('swapping to open slots', self.open_slots)
-            pixels_to_check = self.open_slots
-        for (x, y) in pixels_to_check:
-            avg = self.get_avg_color(x, y)
+        for (x, y) in self.adjacent_and_open:
+            avg = self.average_colors[x][y]
             distance = avg.distance(target_color)
             if distance < min_distance:
                 min_distance = distance
                 pixel = (x, y)
+        if pixel is None:
+            print ('no adjacent and open?', self.adjacent_and_open, self.open_slots)
+
         return pixel
 
     def find_next_available(self):

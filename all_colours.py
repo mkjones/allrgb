@@ -64,7 +64,13 @@ def write_image(i, last_save_time):
 # (i.e. the pixel where the average of the filled-in pixels surrounding it
 # is closest to this color)
 for color in colorset.iterate():
-    (x, y) = canvas.find_pixel_with_average_near(color)
+    point = canvas.find_pixel_with_average_near(color)
+    if point is None:
+        # it is possible we have more colors than pixels (since the canvas
+        # is a square, but the number of colors is not a perfect square if
+        # bits is odd)
+        break
+    (x, y) = point
     canvas.set(x, y, color)
     if i % 1000 == 0:
         write_image(i, last_save_time)
