@@ -13,7 +13,6 @@ class Canvas(object):
         self.colors = {}
         self.open_slots = {}
         self.adjacent_and_open = set([])
-        self.next = None
         self.totally_blank = True
         for x in xrange(0, width):
             for y in xrange(0, height):
@@ -25,15 +24,11 @@ class Canvas(object):
         return self.colors[x][y]
 
     def set(self, x, y, color):
-        if (x, y) == self.next:
-            self.next = None
-
         adjacent = self.get_adjacent(x, y)
         for point in adjacent:
             if point == (x, y):
                 continue
             if point in self.open_slots:
-                self.next = point
                 self.adjacent_and_open.add(point)
 
         del self.open_slots[(x, y)]
@@ -103,8 +98,6 @@ class Canvas(object):
         return pixel
 
     def find_next_available(self):
-        if self.next is not None:
-            return self.next
         for x in self.adjacent_and_open:
             return x
 
