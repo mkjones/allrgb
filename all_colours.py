@@ -8,21 +8,39 @@ from canvas import Canvas
 from colorset import Colorset
 import sys
 
+# constants to configure how we're making things!
+
+# how many bits should we use per channel?  "normal" 24-bit color
+# uses 8 bits per channel, but will take a very long time to generate
+# a full image.  Image size = # colors = 2^(3 * bits)
 bits = 4
-seed = 42
+
+# How many pixels do we start by randomly filling in?  This is only
+# relevant for the "find the best place for a color" approach, rather
+# than the "find the best color for a place" approach.
 starting_pixels = 5
-random.seed(seed)
-print 'making colors'
-colorset = Colorset(bits)
+
+# This is just a seed for the random number generator so we can do
+# things like performance testing deterministically
+seed = 42
 
 print 'initializing'
+
+random.seed(seed)
+colorset = Colorset(bits)
+# This is technically only correct for an even number of bits, but
+# it rounds down for an odd number of bits, and there are simply some colors
+# that we never use.  Shrug.
 height = width = int(math.sqrt(colorset.size()))
-print ('dims', height * width, colorset.size())
 canvas = Canvas(width, height)
 
+# Grab some random starting colors just by making a randomly-sorted
+# list of all the colors and taking the first few.
+# Not the most efficient, but doesn't really matter.
 colors = [x for x in colorset.iterate()]
 random.shuffle(colors)
 
+# Choose random starting colors and place them randomly on the canvas
 for i in xrange(starting_pixels):
     starting_color = colorset.get_nearest(colors[i])
     last_x = random.randrange(width)
@@ -42,6 +60,9 @@ def write_image(i, last_save_time):
     last_save_time = time.time()
     canvas.save(name)
 
+# For each color generated, find the pixel where it fits "best"
+# (i.e. the pixel where  the average of the filed-in pixels surrounding it
+# is closest to this color)
 for color in colorset.iterate():
     (x, y) = canvas.find_pixel_with_average_near(color)
     canvas.set(x, y, color)
