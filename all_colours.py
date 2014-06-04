@@ -13,16 +13,16 @@ import sys
 # how many bits should we use per channel?  "normal" 24-bit color
 # uses 8 bits per channel, but will take a very long time to generate
 # a full image.  Image size = # colors = 2^(3 * bits)
-bits = 4
+bits = 5
 
 # How many pixels do we start by randomly filling in?  This is only
 # relevant for the "find the best place for a color" approach, rather
 # than the "find the best color for a place" approach.
-starting_pixels = 5
+starting_pixels = 4
 
 # This is just a seed for the random number generator so we can do
 # things like performance testing deterministically
-seed = 42
+seed = 27
 
 print 'initializing'
 
@@ -54,10 +54,9 @@ time_color = 0.0
 time_point = 0.0
 
 def write_image(i, last_save_time):
-    name = '/tmp/colors-nextrand.%d.%d.png' % (bits, i)
+    name = '/tmp/colors-coloriter.%d.%d.%d.png' % (bits, starting_pixels, i)
     avg_rate = i / (time.time() - start_time)
     print (name, time.time() - last_save_time, int(avg_rate), int(time_color), int(time_point))
-    last_save_time = time.time()
     canvas.save(name)
 
 # For each color generated, find the pixel where it fits "best"
@@ -74,6 +73,8 @@ for color in colorset.iterate():
     canvas.set(x, y, color)
     if i % 1000 == 0:
         write_image(i, last_save_time)
+        last_save_time = time.time()
+
     i += 1
 
 write_image(i, last_save_time)
