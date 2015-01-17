@@ -100,34 +100,45 @@ class ByColorFiller(Filler):
 
         self.write_image(i)
 
+class ByWalkFiller(Filler):
 
+    def go(self):
+        print colorset
+        last_x = 0
+        last_y = 0
+        i = 0
+        print ('last_x after', last_x)
+        while colorset.size() > 0:
+            get_nearby_start = time.time()
 
-def fill_by_walk():
-    print colorset
-    print ('last_x after', last_x)
-    while colorset.size() > 0:
-        get_nearby_start = time.time()
-        (x, y) = canvas.find_blank_nearby_opt(last_x, last_y)
-        diff = time.time() - get_nearby_start
-        time_point += diff
+            # find the open pixel nearest the last one we filled in
+            (x, y) = canvas.find_blank_nearby_opt(last_x, last_y)
+            diff = time.time() - get_nearby_start
+            self.time_point += diff
 
-        avg_col = canvas.get_avg_color(x, y)
-        get_nearest_start = time.time()
-        new_col = colorset.get_nearest(avg_col)
-        diff = time.time() - get_nearest_start
-        time_color += diff
+            # figure out what the "average" color is of all the pixels
+            # around the open pixel we found
+            avg_col = canvas.get_avg_color(x, y)
 
-        canvas.set(x, y, new_col)
-        last_x = x
-        last_y = y
-        i = i + 1
+            # now find the color closest to that average
+            get_nearest_start = time.time()
+            new_col = colorset.get_nearest(avg_col)
+            diff = time.time() - get_nearest_start
+            self.time_color += diff
 
-        if i % 1000 == 0:
-            write_image(i, last_save_time)
+            canvas.set(x, y, new_col)
+            last_x = x
+            last_y = y
 
-    write_image(i, last_save_time)
+            i += 1
+
+            if i % 1000 == 0:
+                self.write_image(i)
+
+        self.write_image(i)
 
 print ('last_x before', last_x)
-filler = ByColorFiller(canvas, colorset, starting_pixels)
+# filler = ByColorFiller(canvas, colorset, starting_pixels)
+filler = ByWalkFiller(canvas, colorset, starting_pixels)
 filler.go()
 
