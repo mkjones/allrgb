@@ -65,9 +65,9 @@ class Canvas(object):
             self.average_colors[x] = row
         row[y] = self.get_avg_color(x, y)
 
-    def get_adjacent(self, x, y):
+    def get_adjacent(self, x, y, distance = 1):
         ret = set([])
-        for i in xrange(-1, 2):
+        for i in xrange(-1 * distance, distance + 1):
             xnew = x + i
             if xnew < 0 or xnew >= self.width:
                 continue
@@ -84,7 +84,7 @@ class Canvas(object):
         b = 0
         total = 0
         bits = None
-        adjacent = self.get_adjacent(x, y)
+        adjacent = self.get_adjacent(x, y, 2)
         for (xnew, ynew) in adjacent:
             col = self.get(xnew, ynew)
             if col is None:

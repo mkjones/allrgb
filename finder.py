@@ -4,24 +4,30 @@ import time
 class Finder(object):
 
     def __init__(self, list_of_tuples):
+        # the set of tuples from which we'll find things
         self.tuples = {x: True for x in list_of_tuples}
+
+        # the set of tuples we have already removed
         self.removed = set([])
         self.rebuild()
 
     def size(self):
         return len(self.tuples)
 
+    # returns the squared euclidean distance between the two points (tuples)
     def distance(self, x, y):
         diffs = []
         for i in xrange(len(x)):
             diffs.append(x[i] - y[i])
         return sum(map(lambda x: x * x, diffs))
 
+    # find the first tuple within squared distance of query
     def find_threshold(self, query):
         thresh = 20
         for elem, _ in self.tuples.iteritems():
             if self.distance(query, elem) <= thresh:
                 return self.remove(elem)
+
 
     def find_nearest(self, query):
         if len(self.removed) % 1234 == 0:
