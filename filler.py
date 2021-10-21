@@ -32,7 +32,7 @@ class Filler(object):
         random.shuffle(colors)
         height = width = self.canvas.height
         self.starting_pixel_list = []
-        for i in xrange(self.starting_pixel_count):
+        for i in range(self.starting_pixel_count):
             starting_color = self.colorset.get_nearest(colors[i])
             x = random.randint(0, width-1)
             y = random.randint(0, height-1)
@@ -46,11 +46,11 @@ class Filler(object):
                                                 self.starting_pixel_count,
                                                 i)
         avg_rate = i / (time.time() - self.start_time)
-        print (name,
+        print((name,
                time.time() - self.last_save_time,
                int(avg_rate),
                int(self.time_color),
-               int(self.time_point))
+               int(self.time_point)))
         self.canvas.save(name)
         self.last_save_time = time.time()
 

@@ -25,7 +25,7 @@ starting_pixels = 3
 # things like performance testing deterministically
 seed = 29
 
-print 'initializing'
+print('initializing')
 
 random.seed(seed)
 

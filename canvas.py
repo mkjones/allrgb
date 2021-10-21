@@ -14,8 +14,8 @@ class Canvas(object):
         self.open_slots = {}
         self.adjacent_and_open = set([])
         self.average_colors = {}
-        for x in xrange(0, width):
-            for y in xrange(0, height):
+        for x in range(0, width):
+            for y in range(0, height):
                 self.open_slots[(x, y)] = True
 
     # Gets the current color at the position given.  Returns None if no
@@ -67,11 +67,11 @@ class Canvas(object):
 
     def get_adjacent(self, x, y, distance = 1):
         ret = set([])
-        for i in xrange(-1 * distance, distance + 1):
+        for i in range(-1 * distance, distance + 1):
             xnew = x + i
             if xnew < 0 or xnew >= self.width:
                 continue
-            for j in xrange(-1, 2):
+            for j in range(-1, 2):
                 ynew = y + j
                 if ynew < 0 or ynew >= self.height:
                     continue
@@ -102,7 +102,7 @@ class Canvas(object):
         xd = a[0] - b[0]
         yd = a[1] - b[1]
         return (xd * xd) + (yd * yd)
-        return sum(map(lambda x: x * x, (a[0]-b[0], a[1]-b[1])))
+        return sum([x * x for x in (a[0]-b[0], a[1]-b[1])])
 
     # finds the open pixel with the average color closest to the target
     def find_pixel_with_average_near(self, target_color):
@@ -115,7 +115,7 @@ class Canvas(object):
                 min_distance = distance
                 pixel = (x, y)
         if pixel is None:
-            print ('no adjacent and open?', self.adjacent_and_open, self.open_slots)
+            print(('no adjacent and open?', self.adjacent_and_open, self.open_slots))
 
         return pixel
 
@@ -134,7 +134,7 @@ class Canvas(object):
         if closest_adjacent is not None:
             return closest_adjacent
 
-        print ('nothing left in adj and open?', self.adjacent_and_open)
+        print(('nothing left in adj and open?', self.adjacent_and_open))
         closest = self._find_closest((x, y), self.open_slots)
         if closest is not None:
             return closest
@@ -161,7 +161,7 @@ class Canvas(object):
     def _find_nearest(self, x, y):
         min_spot = (0, 0)
         min_distance = 1000000000
-        for (i, j), _ in self.open_slots.iteritems():
+        for (i, j), _ in self.open_slots.items():
             distance = int(math.pow((i-x), 2) + math.pow((j-y), 2))
             if distance < min_distance:
                 min_distance = distance
@@ -190,8 +190,8 @@ class Canvas(object):
     # Saves the current canvas to disk as a file with the given filename
     def save(self, filename):
         image = numpy.zeros((self.width, self.height, 3), 'uint8')
-        for x, row in self.colors.iteritems():
-            for y, color in row.iteritems():
+        for x, row in self.colors.items():
+            for y, color in row.items():
                 image[x, y, :] = color.get_24bit_tuple()
 
         Image.fromarray(image).save(filename)
@@ -199,7 +199,7 @@ class Canvas(object):
 if __name__ == '__main__':
     c = Canvas(4, 4)
     c.set(2, 1, (2, 40, 3))
-    print c.get(2, 1)
+    print(c.get(2, 1))
 
 
 

@@ -15,9 +15,9 @@ class Colorset(object):
 
         # list of Color objects in this set
         self.colors = []
-        for r in xrange(0, max_color):
-            for g in xrange(0, max_color):
-                for b in xrange(0, max_color):
+        for r in range(0, max_color):
+            for g in range(0, max_color):
+                for b in range(0, max_color):
                     color = Color(r, g, b, bits)
                     self.colors.append(color)
 
@@ -25,7 +25,7 @@ class Colorset(object):
 
         # mapping from the actual (r,g,b) tuple of a color to its object
         self.rgb2color = {x.rgb: x for x in self.colors}
-        rgbs = map(lambda x: x.rgb, self.colors)
+        rgbs = [x.rgb for x in self.colors]
 
         # does the work of finding the nearest color for a query
         self.finder = Finder(rgbs)

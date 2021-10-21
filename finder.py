@@ -17,14 +17,14 @@ class Finder(object):
     # returns the squared euclidean distance between the two points (tuples)
     def distance(self, x, y):
         diffs = []
-        for i in xrange(len(x)):
+        for i in range(len(x)):
             diffs.append(x[i] - y[i])
-        return sum(map(lambda x: x * x, diffs))
+        return sum([x * x for x in diffs])
 
     # find the first tuple within squared distance of query
     def find_threshold(self, query):
         thresh = 20
-        for elem, _ in self.tuples.iteritems():
+        for elem, _ in self.tuples.items():
             if self.distance(query, elem) <= thresh:
                 return self.remove(elem)
 
@@ -42,7 +42,7 @@ class Finder(object):
 
         min = 100000000
         argmin = None
-        for k, _ in self.tuples.iteritems():
+        for k, _ in self.tuples.items():
             distance = self.distance(k, query)
             if distance < min:
                 min = distance
@@ -56,21 +56,21 @@ class Finder(object):
         return elem
 
     def rebuild_if_necessary(self):
-        print ('kd, bruteforce', self.used_kd, self.used_bruteforce)
+        print(('kd, bruteforce', self.used_kd, self.used_bruteforce))
         if self.used_bruteforce > 2:
             start = time.time()
             self.rebuild()
             diff = time.time() - start
-            print ('rebuilt in ', diff)
+            print(('rebuilt in ', diff))
 
     def rebuild(self):
-        self.tuple_list = self.tuples.keys()
+        self.tuple_list = list(self.tuples.keys())
         self.tree = KDTree(self.tuple_list)
         self.used_kd = 0
         self.used_bruteforce = 0
 
     def iterate(self):
-        for k, _ in self.tuples.iteritems():
+        for k, _ in self.tuples.items():
             yield k
 
 
@@ -83,6 +83,6 @@ if __name__ == '__main__':
         (400, 400, 400)]
 
     f = Finder(tuples)
-    print f.find_nearest((0, 0, 0)) == (1, 2, 3)
-    print f.find_nearest((0, 0, 0)) == (2, 2, 3)
-    print f.find_nearest((100, 1000, 0)) == (400, 400, 400)
+    print(f.find_nearest((0, 0, 0)) == (1, 2, 3))
+    print(f.find_nearest((0, 0, 0)) == (2, 2, 3))
+    print(f.find_nearest((100, 1000, 0)) == (400, 400, 400))

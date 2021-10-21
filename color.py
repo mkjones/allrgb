@@ -19,12 +19,12 @@ class Color(object):
     def distance(self, other):
         if self.bits != other.bits:
             raise Exception('cannot get distance with different bit counts')
-        diffs = map(lambda x: x[0] - x[1], zip(self.rgb, other.rgb))
-        return sum(map(lambda x: int(math.pow(x, 2)), diffs))
+        diffs = [x[0] - x[1] for x in zip(self.rgb, other.rgb)]
+        return sum([int(math.pow(x, 2)) for x in diffs])
 
     def get_24bit_tuple(self):
         scalar = int(math.pow(2, 8 - self.bits))
-        return tuple(map(lambda x: x * scalar, self.rgb))
+        return tuple([x * scalar for x in self.rgb])
 
 
 if __name__ == '__main__':
@@ -34,10 +34,10 @@ if __name__ == '__main__':
 
     c3 = Color(2, 4, 8, 5)
 
-    print c1 == c1_dupe
-    print c1.__hash__() == c1_dupe.__hash__()
-    print c1.__hash__() != c2.__hash__()
-    print c3.get_24bit_tuple() == (16, 32, 64)
-    print c1.distance(c1_dupe) == 0
-    print c1.distance(c2) == 4
+    print(c1 == c1_dupe)
+    print(c1.__hash__() == c1_dupe.__hash__())
+    print(c1.__hash__() != c2.__hash__())
+    print(c3.get_24bit_tuple() == (16, 32, 64))
+    print(c1.distance(c1_dupe) == 0)
+    print(c1.distance(c2) == 4)
 
